@@ -1,0 +1,10 @@
+{
+    "CLIENT_NETID": "192.168.0.1.1.1",
+    "CLIENT_IP": "192.168.0.1",
+    "TARGET_HOSTNAME": "CX-1000",
+    "TARGET_NETID": "192.168.0.1.1.1",
+    "TARGET_IP": "192.168.0.1",
+    "TARGET_USERNAME": "Administrator",
+    "TARGET_PASSWORD": "1",
+    "ROUTE_NAME": "Route1"
+}
