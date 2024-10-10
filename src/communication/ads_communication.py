@@ -15,14 +15,19 @@ class ADSCommunication:
 
     def create_route(self):
         try:
+            pyads.open_port()
+            pyads.set_local_address(self.CLIENT_NETID)
             pyads.add_route_to_plc(self.CLIENT_NETID, self.CLIENT_IP, self.TARGET_IP, self.TARGET_USERNAME, self.TARGET_PASSWORD, route_name=self.ROUTE_NAME)
-            print(f"Route created from {self.target_net_id} to {self.client_net_id}")
+            pyads.close_port()
+            print(f"Route created from {self.TARGET_NETID} to {self.CLIENT_NETID}")
         except pyads.ADSError as e:
             print(f"Failed to create route: {e}")
         
     def connect(self):
         try:
-            self.plc = pyads.Connection(self.TARGET_NETID, pyads.PORT_TC3PLC1)
+            print(f"Connecting to PLC at {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
+            self.plc = pyads.Connection(self.TARGET_NETID, pyads.PORT_TC3PLC1, self.TARGET_IP)
+            print(f"Connection object created: {self.plc}")
             self.plc.open()
             print(f"Connected to PLC to {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
         except pyads.ADSError as e:
@@ -30,8 +35,11 @@ class ADSCommunication:
 
     def check_connection_state(self):
         try:
-            plc_state = self.plc.read_state()
-            print("Connection state: ", plc_state)
+            if self.plc and self.plc.is_open:
+                plc_state = self.plc.read_state()
+                print("Connection state: ", {plc_state})
+            else:
+                print("PLC connection not open")
         except pyads.ADSError as e:
             print(f"Failed to check connection state: {e}")
 

@@ -15,10 +15,14 @@ def test_ads_communication():
     plc.create_route()
     plc.connect()
     plc.check_connection_state()
-
-    print("Test passed")
+    if plc.plc and plc.plc.is_open and plc.plc.read_state() != None:
+        print("Test passed")
+    else:
+        print("Test failed")
 
     assert plc is not None
     assert plc.plc.is_open
+    assert plc.plc.read_state() is not None
 
-test_ads_communication()
+if __name__ == "__main__":
+    test_ads_communication()
