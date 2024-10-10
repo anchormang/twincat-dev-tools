@@ -2,9 +2,7 @@ import pyads
 import json
 
 class ADSCommunication:
-    def __init__(self, CLIENT_NETID, CLIENT_IP, TARGET_HOSTNAME, TARGET_NETID, TARGET_IP, TARGET_USERNAME, TARGET_PASSWORD, ROUTE_NAME):
-        with open('plc_config.json', 'r') as config_file:
-            config = json.load(config_file)
+    def __init__(self, config):
         self.CLIENT_NETID = config['CLIENT_NETID']
         self.CLIENT_IP = config['CLIENT_IP']
         self.TARGET_HOSTNAME = config['TARGET_HOSTNAME']
@@ -24,9 +22,9 @@ class ADSCommunication:
         
     def connect(self):
         try:
-            self.plc = pyads.Connection(self.net_id, self.port, self.ip_address)
+            self.plc = pyads.Connection(self.TARGET_NETID, pyads.PORT_TC3PLC1)
             self.plc.open()
-            print(f"Connected to PLC at {self.net_id}:{self.port}")
+            print(f"Connected to PLC to {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
         except pyads.ADSError as e:
             print(f"Failed to connect to PLC: {e}")
 
