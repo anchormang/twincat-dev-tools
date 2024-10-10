@@ -1,6 +1,6 @@
 class PLCMonitor:
-    def __init__(self, ads_communication):
-        self.ads_communication = ads_communication
+    def __init__(self):
+        pass
 
     def get_variable_value(self, variable_name):
         return self.ads_communication.read(variable_name)
