@@ -36,7 +36,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "beckhoff-programmer=beckhoff_plc_programmer.main:main",
+            "twincat-dev-tools=twincat_dev_tools.main:main",
         ],
     },
 )
