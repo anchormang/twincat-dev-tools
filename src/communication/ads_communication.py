@@ -72,8 +72,8 @@ class ADSCommunication:
         Write a variable to the PLC
         """
         try:
-            self.plc.write_by_name(variable_name, value, pyads.PLCTYPE_BOOL)
-            print(variable_name, "set to", self.plc.read_by_name(variable_name, pyads.PLCTYPE_BOOL))
+            self.plc.write_by_name(variable_name, value)
+            print(variable_name, "set to", self.plc.read_by_name(variable_name))
         except pyads.ADSError as e:
             print(f"Failed to write variable: {e}")
 
