@@ -35,16 +35,7 @@ class BeckhoffProgrammer:
     def ads_communication(self):
         self.communication.create_route()
         self.communication.connect()
-        self.communication.check_connection_state()
-
-        #try:
-        #    while True:
-        #        print("Connection Open to ", {self.communication.TARGET_HOSTNAME})
-        #        time.sleep(2)
-        #except KeyboardInterrupt:
-        #    print("Connection Closed")
-        #finally:
-        #    self.communication.close()
+        self.communication.read_device_state()
 
 def main():
     parser = argparse.ArgumentParser(description="Beckhoff Programmer")

@@ -38,11 +38,11 @@ class ADSCommunication:
         Connect to the PLC
         """
         try:
-            print(f"Connecting to PLC - {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
+            print(f"Connecting to PLC: {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
             self.plc = pyads.Connection(self.TARGET_NETID, pyads.PORT_TC3PLC1, self.TARGET_IP)
             print(f"Connection object created: {self.plc}")
             self.plc.open()
-            print(f"Connected to PLC - {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
+            print(f"Connected to PLC: {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
         except pyads.ADSError as e:
             print(f"Failed to connect to PLC: {e}")
 
@@ -139,8 +139,8 @@ class ADSState(Enum):
 
     @classmethod
     def get_state_name(cls, state_value):
-        try:    
-            return cls(int(state_value)).name
+        try:  
+            return cls(state_value).name
         except ValueError:
             return f"UNKNOWN_STATE_{state_value}"
     
