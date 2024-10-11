@@ -9,7 +9,7 @@ import argparse
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
 
-from communication import ADSCommunication
+from communication import ADSCommunication, ADSState
 from programming import PlcProgram
 from deployment import Deployer
 from code_generation import CodeGenerator
@@ -51,15 +51,19 @@ def main():
     subparser = parser.add_subparsers(dest='command', help='Available commands')
 
     read_parser = subparser.add_parser('read', help='Read a variable')
-    read_parser.add_argument('variable', type=str, help='Variable to read')
-    read_parser.add_argument('-t', '--type', type=str, help='Type of the variable to read')
+    read_group = read_parser.add_mutually_exclusive_group(required=True)
+    read_group.add_argument('variable', type=str, nargs='?', help='Variable to read')
+    read_group.add_argument('-a', '--all', action='store_true', help='Read all symbols in PLC project')
+    read_parser.add_argument('-c', '--continuous', action='store_true', help='Read variable continuously until stopped')
+    read_parser.add_argument('-i', '--interval', type=float, default=1, help='Interval between reads in seconds')
+    
+    read_state_parser = subparser.add_parser('readstate', help='Read the device state')
 
     write_parser = subparser.add_parser('write', help='Write a variable')
     write_parser.add_argument('variable', type=str, help='Variable to write')
     write_parser.add_argument('value', type=str, help='Value to write')
-    write_parser.add_argument('-t', '--type', type=str, help='Type of the variable to write')
 
-    parser.add_argument('-c', '--connect', action='store_true', help='Establish ADS communication')
+    #parser.add_argument('-c', '--connect', action='store_true', help='Establish ADS communication')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
 
     args = parser.parse_args()
@@ -69,24 +73,44 @@ def main():
     if args.verbose:
         print(f"Executing comand: {args.command}")
 
-    if args.connect:
-        programmer.ads_communication()
-    elif args.command == 'read':
-        if args.variable:
+    if args.command == 'read':
+        if args.all:
             programmer.communication.create_route()
             programmer.communication.connect()
-            print(programmer.communication.read_variable(args.variable, args.type))
+            programmer.communication.get_symbols()
             programmer.communication.close()
-        elif args.variable is None or args.type is None:
-            print("Error: --variable and --type is required when using --read")
+        elif args.variable:
+            programmer.communication.create_route()
+            programmer.communication.connect()
+            if args.continuous:
+                while True:
+                    try:
+                        print(args.variable + ":", str(programmer.communication.read_variable(args.variable)))
+                        time.sleep(args.interval)
+                    except KeyboardInterrupt:
+                        print("Continuous reading interrupted")
+                        break
+            else:
+                print(args.variable + ":", programmer.communication.read_variable(args.variable))
+            programmer.communication.close()
+        elif args.variable is None:
+            print("Error: variable is required when using read")
     elif args.command == 'write':
         if args.variable and args.value:
             programmer.communication.create_route()
             programmer.communication.connect()
-            programmer.communication.write_variable(args.variable, args.value)
+            programmer.communication.write_variable(args.variable, str_to_bool(args.value))
             programmer.communication.close()
         elif args.variable is None or args.value is None:
             print("Error: --variable and --value is required when using --write")
+    elif args.command == 'readstate':
+        programmer.communication.create_route()
+        programmer.communication.connect()
+        print(programmer.communication.read_device_state())
+        programmer.communication.close()
+
+def str_to_bool(value):
+    return value.lower() == 'true'
 
 if __name__ == "__main__":
     main()

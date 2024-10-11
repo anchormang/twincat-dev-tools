@@ -1,1 +1,1 @@
-from .ads_communication import ADSCommunication
+from .ads_communication import ADSCommunication, ADSState
