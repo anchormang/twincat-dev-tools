@@ -93,12 +93,20 @@ class ADSCommunication:
         except pyads.ADSError as e:
             print(f"Failed to write variable: {e}")
 
-    def write_structure(self, structure_name, structure_def, value):
+    def write_structure(self, structure_name, value):
         """
         Write a structure to the PLC
         """
-        pass
-    
+        var_handle = self.plc.get_handle(structure_name)
+        for i in range(len(value)):
+            try:
+                #self.plc.write_structure_by_name(structure_name, value, path_struct_def, handle=var_handle)
+                self.plc.write_structure_by_name(structure_name+'['+str(i)+']', value[i], path_struct_def, handle=var_handle)
+                #print(self.plc.read_structure_by_name(structure_name+'['+str(i)+']', path_struct_def))
+            except pyads.ADSError as e:
+                print(f"Failed to write structure: {e}")
+        self.plc.release_handle(var_handle)
+
     def activate_configuration(self):
         """
         Activate the configuration on the PLC
@@ -114,6 +122,14 @@ class ADSCommunication:
             print(f"Disconnected from PLC - {self.TARGET_HOSTNAME}:{self.TARGET_NETID}")
         else:
             print("No PLC connection to close")
+
+path_struct_def = (
+    ('T_Pos', pyads.PLCTYPE_DINT, 1),
+    ('A_Pos', pyads.PLCTYPE_DINT, 1),
+    ('B_Pos', pyads.PLCTYPE_DINT, 1),
+    ('W_Pos', pyads.PLCTYPE_DINT, 1),
+    ('TimeStamp', pyads.PLCTYPE_DINT, 1)
+)
 
 class ADSState(Enum):
     INVALID = 0,

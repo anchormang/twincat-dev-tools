@@ -51,15 +51,19 @@ def main():
     read_state_parser = subparser.add_parser('readstate', help='Read the device state')
 
     write_parser = subparser.add_parser('write', help='Write a variable')
+    write_group = write_parser.add_mutually_exclusive_group(required=True)
     write_parser.add_argument('variable', type=str, help='Variable to write')
-    write_parser.add_argument('value', type=str, help='Value to write')
-
+    write_group.add_argument('value', type=str, nargs='?', help='Value to write')
+    write_group.add_argument('-s', '--structure', action='store_true', help='Write to a structure')
+    
     #parser.add_argument('-c', '--connect', action='store_true', help='Establish ADS communication')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
 
     args = parser.parse_args()
 
     programmer = BeckhoffProgrammer()
+
+    test_path = create_path()
     
     if args.verbose:
         print(f"Executing comand: {args.command}")
@@ -87,12 +91,20 @@ def main():
         elif args.variable is None:
             print("Error: variable is required when using read")
     elif args.command == 'write':
-        if args.variable and args.value:
+        if args.variable and args.value and not args.structure:
             programmer.communication.create_route()
             programmer.communication.connect()
             programmer.communication.write_variable(args.variable, str_to_bool(args.value))
             programmer.communication.close()
-        elif args.variable is None or args.value is None:
+        elif args.variable and args.structure:
+            programmer.communication.create_route()
+            programmer.communication.connect()
+            start_time = time.time()
+            programmer.communication.write_structure(args.variable, test_path)
+            end_time = time.time()
+            print(f"Time taken to write structure: {end_time - start_time} seconds")
+            programmer.communication.close()
+        elif args.variable is None or (not args.structure and args.value is None):
             print("Error: --variable and --value is required when using --write")
     elif args.command == 'readstate':
         programmer.communication.create_route()
@@ -102,6 +114,32 @@ def main():
 
 def str_to_bool(value):
     return value.lower() == 'true'
+
+def create_path():
+    path = []
+    for i in range(0, 999):
+        path.append([
+            i*10,
+            i*10,
+            i*10,
+            i*10,
+            i*10
+        ])
+    return path
+
+#test_path = [{
+#    'T_Pos': 10,
+#    'A_Pos': 10,
+#    'B_Pos': 10,
+#    'W_Pos': 10,
+#    'TimeStamp': 10
+#},
+# {'T_Pos': 20,
+#    'A_Pos': 20,
+#    'B_Pos': 20,
+#    'W_Pos': 20,
+#    'TimeStamp': 20
+#}]
 
 if __name__ == "__main__":
     main()

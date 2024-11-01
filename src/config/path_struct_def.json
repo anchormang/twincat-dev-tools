@@ -1,0 +1,9 @@
+{
+    "PathStruct": {
+        "T_Pos": "DINT",
+        "A_Pos": "DINT",
+        "B_Pos": "DINT",
+        "W_Pos": "DINT",
+        "TimeStamp": "TIME"
+    }
+}
