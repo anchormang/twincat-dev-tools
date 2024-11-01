@@ -1,2 +1,1 @@
--r build/requirements.txt
 pyads==3.4.2
